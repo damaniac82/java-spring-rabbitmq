@@ -17,6 +17,7 @@ import io.opentracing.Tracer;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -27,6 +28,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 
 /**
@@ -77,4 +80,12 @@ public class RabbitMqTracingAutoConfiguration {
     return new RabbitMqSpanDecorator();
   }
 
+  @ConditionalOnMissingBean(PropertyPlaceholderConfigurer.class)
+  @Bean
+  public PropertyPlaceholderConfigurer propertyPlaceholderConfigurer() {
+    PropertyPlaceholderConfigurer configurer = new PropertyPlaceholderConfigurer();
+    configurer.setLocations(new Resource[]{new ClassPathResource("/application.properties")});
+    configurer.setIgnoreResourceNotFound(true);
+    return configurer;
+  }
 }
