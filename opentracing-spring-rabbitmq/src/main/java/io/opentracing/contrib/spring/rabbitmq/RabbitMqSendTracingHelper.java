@@ -18,6 +18,8 @@ import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.propagation.Format;
 import java.lang.reflect.Field;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.Address;
@@ -45,7 +47,7 @@ public class RabbitMqSendTracingHelper {
   private RabbitTemplate rabbitTemplate;
 
   @Value("${spring.rabbitmq.messagebody.in.spans}")
-  private Boolean addMessagesToSpans;
+  private Optional<Boolean> addMessagesToSpans;
   
   public RabbitMqSendTracingHelper nullResponseMeansTimeout(RabbitTemplate rabbitTemplate) {
     this.nullResponseMeansError = true;
@@ -99,7 +101,7 @@ public class RabbitMqSendTracingHelper {
         new RabbitMqInjectAdapter(messageProperties));
 
     // Add AMQP related tags to tracing span
-    if (addMessagesToSpans) {
+    if (addMessagesToSpans.isPresent() && addMessagesToSpans.get()) {
       spanDecorator.onSend(messageProperties, exchange, routingKey, scope.span(), convertedMessage);
     } else {
       spanDecorator.onSend(messageProperties, exchange, routingKey, scope.span());

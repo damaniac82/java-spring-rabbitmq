@@ -37,7 +37,7 @@ class RabbitMqReceiveTracingInterceptor implements MethodInterceptor, AfterAdvic
   private final RabbitMqSpanDecorator spanDecorator;
   
   @Value("${spring.rabbitmq.messagebody.in.spans}")
-  private Boolean addMessagesToSpans;
+  private Optional<Boolean> addMessagesToSpans;
 
   @Override
   public Object invoke(MethodInvocation methodInvocation) throws Throwable {
@@ -45,7 +45,7 @@ class RabbitMqReceiveTracingInterceptor implements MethodInterceptor, AfterAdvic
     MessageProperties messageProperties = message.getMessageProperties();
 
     Optional<Scope> child = RabbitMqTracingUtils.buildReceiveSpan(messageProperties, tracer);
-    if (addMessagesToSpans) {
+    if (addMessagesToSpans.isPresent() && addMessagesToSpans.get()) {
       child.ifPresent(scope -> spanDecorator.onReceive(messageProperties, scope.span(), message));
     } else {
       child.ifPresent(scope -> spanDecorator.onReceive(messageProperties, scope.span()));
