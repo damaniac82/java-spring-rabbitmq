@@ -46,7 +46,7 @@ public class RabbitMqSendTracingHelper {
   private boolean nullResponseMeansError;
   private RabbitTemplate rabbitTemplate;
 
-  @Value("${spring.rabbitmq.messagebody.in.spans}")
+  @Value("${spring.rabbitmq.messagebody.in.spans:false}")
   private Optional<Boolean> addMessagesToSpans = Optional.of(false);
   
   public RabbitMqSendTracingHelper nullResponseMeansTimeout(RabbitTemplate rabbitTemplate) {

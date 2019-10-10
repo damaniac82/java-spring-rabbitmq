@@ -36,7 +36,7 @@ class RabbitMqReceiveTracingInterceptor implements MethodInterceptor, AfterAdvic
   private final Tracer tracer;
   private final RabbitMqSpanDecorator spanDecorator;
   
-  @Value("${spring.rabbitmq.messagebody.in.spans}")
+  @Value("${spring.rabbitmq.messagebody.in.spans:false}")
   private Optional<Boolean> addMessagesToSpans = Optional.of(false);
 
   @Override
