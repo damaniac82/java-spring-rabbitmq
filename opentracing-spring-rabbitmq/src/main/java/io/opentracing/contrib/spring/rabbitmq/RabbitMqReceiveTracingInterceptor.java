@@ -17,22 +17,27 @@ import io.opentracing.Scope;
 import io.opentracing.Tracer;
 
 import java.util.Optional;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.aop.AfterAdvice;
 import org.springframework.aop.BeforeAdvice;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * @author Gilles Robert
  */
-@AllArgsConstructor
+@RequiredArgsConstructor
 class RabbitMqReceiveTracingInterceptor implements MethodInterceptor, AfterAdvice, BeforeAdvice {
 
   private final Tracer tracer;
   private final RabbitMqSpanDecorator spanDecorator;
+  
+  @Value("${spring.rabbitmq.messagebody.in.spans}")
+  private Boolean addMessagesToSpans;
 
   @Override
   public Object invoke(MethodInvocation methodInvocation) throws Throwable {
@@ -40,7 +45,10 @@ class RabbitMqReceiveTracingInterceptor implements MethodInterceptor, AfterAdvic
     MessageProperties messageProperties = message.getMessageProperties();
 
     Optional<Scope> child = RabbitMqTracingUtils.buildReceiveSpan(messageProperties, tracer);
-    child.ifPresent(scope -> spanDecorator.onReceive(messageProperties, scope.span(), message));
+    if (addMessagesToSpans) 
+      child.ifPresent(scope -> spanDecorator.onReceive(messageProperties, scope.span(), message));
+    else
+      child.ifPresent(scope -> spanDecorator.onReceive(messageProperties, scope.span()));
 
     // CHECKSTYLE:OFF
     try {

@@ -25,6 +25,7 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.ReflectionUtils;
 
 @RequiredArgsConstructor
@@ -43,6 +44,9 @@ public class RabbitMqSendTracingHelper {
   private boolean nullResponseMeansError;
   private RabbitTemplate rabbitTemplate;
 
+  @Value("${spring.rabbitmq.messagebody.in.spans}")
+  private Boolean addMessagesToSpans;
+  
   public RabbitMqSendTracingHelper nullResponseMeansTimeout(RabbitTemplate rabbitTemplate) {
     this.nullResponseMeansError = true;
     this.rabbitTemplate = rabbitTemplate;
@@ -95,7 +99,10 @@ public class RabbitMqSendTracingHelper {
         new RabbitMqInjectAdapter(messageProperties));
 
     // Add AMQP related tags to tracing span
-    spanDecorator.onSend(messageProperties, exchange, routingKey, scope.span(), convertedMessage);
+    if (addMessagesToSpans)
+      spanDecorator.onSend(messageProperties, exchange, routingKey, scope.span(), convertedMessage);
+    else
+      spanDecorator.onSend(messageProperties, exchange, routingKey, scope.span());
 
     return convertedMessage;
   }

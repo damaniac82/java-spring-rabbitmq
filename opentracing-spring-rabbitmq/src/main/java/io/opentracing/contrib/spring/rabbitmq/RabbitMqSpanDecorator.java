@@ -27,11 +27,19 @@ import org.springframework.amqp.core.MessageProperties;
  */
 public class RabbitMqSpanDecorator {
 
+  public void onSend(MessageProperties messageProperties, String exchange, String routingKey, Span span) {
+    onSend(messageProperties, exchange, routingKey, span, null);
+  }
+
   public void onSend(MessageProperties messageProperties, String exchange, String routingKey, Span span, Message message) {
     Tags.COMPONENT.set(span, RabbitMqTracingTags.RABBITMQ);
     RabbitMqTracingTags.EXCHANGE.set(span, exchange);
     RabbitMqTracingTags.MESSAGE_ID.set(span, messageProperties.getMessageId());
     RabbitMqTracingTags.ROUTING_KEY.set(span, routingKey);
+  }
+
+  public void onReceive(MessageProperties messageProperties, Span span) {
+    onReceive(messageProperties, span, null);
   }
 
   public void onReceive(MessageProperties messageProperties, Span span, Message message) {
