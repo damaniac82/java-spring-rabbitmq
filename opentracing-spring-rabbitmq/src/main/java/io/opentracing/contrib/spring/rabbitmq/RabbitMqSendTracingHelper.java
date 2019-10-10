@@ -95,7 +95,7 @@ public class RabbitMqSendTracingHelper {
         new RabbitMqInjectAdapter(messageProperties));
 
     // Add AMQP related tags to tracing span
-    spanDecorator.onSend(messageProperties, exchange, routingKey, scope.span());
+    spanDecorator.onSend(messageProperties, exchange, routingKey, scope.span(), convertedMessage);
 
     return convertedMessage;
   }

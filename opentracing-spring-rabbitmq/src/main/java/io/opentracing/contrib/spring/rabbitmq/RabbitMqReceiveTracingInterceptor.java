@@ -40,7 +40,7 @@ class RabbitMqReceiveTracingInterceptor implements MethodInterceptor, AfterAdvic
     MessageProperties messageProperties = message.getMessageProperties();
 
     Optional<Scope> child = RabbitMqTracingUtils.buildReceiveSpan(messageProperties, tracer);
-    child.ifPresent(scope -> spanDecorator.onReceive(messageProperties, scope.span()));
+    child.ifPresent(scope -> spanDecorator.onReceive(messageProperties, scope.span(), message));
 
     // CHECKSTYLE:OFF
     try {

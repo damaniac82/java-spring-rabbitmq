@@ -18,6 +18,8 @@ import io.opentracing.tag.Tags;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
 
 /**
@@ -25,14 +27,14 @@ import org.springframework.amqp.core.MessageProperties;
  */
 public class RabbitMqSpanDecorator {
 
-  public void onSend(MessageProperties messageProperties, String exchange, String routingKey, Span span) {
+  public void onSend(MessageProperties messageProperties, String exchange, String routingKey, Span span, Message message) {
     Tags.COMPONENT.set(span, RabbitMqTracingTags.RABBITMQ);
     RabbitMqTracingTags.EXCHANGE.set(span, exchange);
     RabbitMqTracingTags.MESSAGE_ID.set(span, messageProperties.getMessageId());
     RabbitMqTracingTags.ROUTING_KEY.set(span, routingKey);
   }
 
-  public void onReceive(MessageProperties messageProperties, Span span) {
+  public void onReceive(MessageProperties messageProperties, Span span, Message message) {
     Tags.COMPONENT.set(span, RabbitMqTracingTags.RABBITMQ);
     RabbitMqTracingTags.EXCHANGE.set(span, messageProperties.getReceivedExchange());
     RabbitMqTracingTags.MESSAGE_ID.set(span, messageProperties.getMessageId());
