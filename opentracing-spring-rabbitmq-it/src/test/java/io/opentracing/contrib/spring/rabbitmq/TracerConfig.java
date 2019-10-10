@@ -16,8 +16,12 @@ package io.opentracing.contrib.spring.rabbitmq;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.util.GlobalTracerTestUtil;
 
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 /**
  * @author Ats Uiboupin
@@ -30,4 +34,14 @@ public class TracerConfig {
     GlobalTracerTestUtil.resetGlobalTracer();
     return new MockTracer();
   }
+  
+  @ConditionalOnMissingBean(PropertyPlaceholderConfigurer.class)
+  @Bean
+  public PropertyPlaceholderConfigurer propertyPlaceholderConfigurer() {
+    PropertyPlaceholderConfigurer configurer = new PropertyPlaceholderConfigurer();
+    configurer.setLocations(new Resource[]{new ClassPathResource("/application.properties")});
+    configurer.setIgnoreResourceNotFound(true);
+    return configurer;
+  }
+  
 }
